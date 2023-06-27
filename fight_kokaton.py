@@ -141,6 +141,26 @@ class Beam:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+class Explosion:
+    def __init__(self, obj: Bird | Bomb, life: int) -> None:
+        """
+        爆発の演出に関するクラス
+        """
+        self.img = pg.image.load("ex03/fig/explosion.gif")
+        # explosionとexplosionを上下左右にflipした画像リスト
+        self.imgs = [
+            self.img,
+            pg.transform.flip(self.img, True, True)
+        ]
+        self.rct = self.img.get_rect()
+        self.rct.centerx = obj.rct.centerx
+        self.rct.centery = obj.rct.centery
+        self.life = life
+    
+    def update(self, screen: pg.Surface):
+        self.life -= 1
+        screen.blit(self.imgs[self.life])
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -148,6 +168,7 @@ def main():
     bird = Bird(3, (900, 400))
     #bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]    #爆弾を５個生成
+    #explosions = [Explosion(bomb) for _ in range(NUM_OF_BOMBS)]
     beam = None
 
     clock = pg.time.Clock()
@@ -165,6 +186,7 @@ def main():
             if bird.rct.colliderect(bomb.rct):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
+                #explosion = Explosion(bomb)
                 pg.display.update()
                 time.sleep(1)
                 return
@@ -174,16 +196,20 @@ def main():
                 if bomb.rct.colliderect(beam.rct):
                     bombs[i] = None
                     beam = None
+                    #explosion = Explosion(bomb)
                     bird.change_img(6, screen)
                     pg.display.update()
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         bombs = [bomb for bomb in bombs if bomb is not None]
+        #explosions = [explosion for explosion in explosions if explosion > 0]
         for bomb in bombs:
             bomb.update(screen)
         if beam is not None:
             beam.update(screen)
+        '''for explosion in explosions:
+            explosion.update(screen)'''
         pg.display.update()
         tmr += 1
         clock.tick(50)
