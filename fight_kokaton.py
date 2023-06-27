@@ -158,10 +158,6 @@ class Explosion:
         self.life = life
     
     def update(self, screen: pg.Surface):
-        """
-        lifeを1減算して、
-        lifeの値に応じてscreenに画像をブリット
-        """
         self.life -= 1
         screen.blit(self.imgs[self.life])
 
